@@ -2,302 +2,547 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mauricio Editor v2.2</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f172a">
+    <title>Notas · Mauricio V8</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --fondo: #0f172a;
+            --panel: #1e293b;
+            --borde: #334155;
+            --texto: #e2e8f0;
+            --suave: #94a3b8;
+            --tenue: #64748b;
+            --acento: #22d3ee;
+            --verde: #16a34a;
+            --amarillo: #facc15;
         }
+
+        html, body { height: 100%; }
 
         body {
-            font-family: sans-serif;
-            background-color: #121212;
-            color: white;
+            font-family: Georgia, "Times New Roman", serif;
+            background: var(--fondo);
+            color: var(--texto);
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            padding: 15px;
-            position: relative;
+            height: 100dvh;
+            padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+            overflow: hidden;
         }
 
-        /* Botón de menú: un poco más grande y mejor ubicado */
-        .boton-menu {
-            position: absolute;
-            top: 20px; /* Bajado un poco más */
-            right: 20px;
-            width: 44px; /* Un poco más grande para tocar mejor */
-            height: 44px;
+        /* ===== Encabezado ===== */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 14px 16px 12px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .titulo {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .titulo h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--texto);
+            line-height: 1.1;
+        }
+
+        .titulo p {
+            font-size: 11px;
+            color: var(--tenue);
+            margin-top: 4px;
+        }
+
+        .derecha {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .reloj {
+            text-align: right;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        #hora {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--amarillo);
+            font-variant-numeric: tabular-nums;
+        }
+
+        #fecha {
+            font-size: 11px;
+            color: var(--tenue);
+            margin-top: 2px;
+        }
+
+        .icono-pequeno {
+            width: 30px;
+            height: 30px;
             border-radius: 8px;
-            background-color: #222;
-            color: white;
-            border: none;
-            font-size: 24px;
+            border: 1px solid var(--borde);
+            background: transparent;
+            color: var(--suave);
+            font-size: 15px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 100;
-            transition: all 0.15s ease;
         }
 
-        .boton-menu:hover {
-            background-color: #333;
-        }
+        .icono-pequeno:active { transform: scale(0.94); }
 
-        .boton-menu:active {
-            transform: scale(0.95); /* Efecto leve al presionar */
-        }
-
-        /* Menú desplegable con mejor espaciado */
-        .menu-contenido {
-            position: absolute;
-            top: 75px;
-            right: 20px;
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 10px;
-            padding: 14px;
-            min-width: 200px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            display: none;
-            z-index: 99;
-        }
-
-        .menu-contenido.mostrar {
-            display: block;
-        }
-
-        .menu-opcion {
+        /* ===== Hoja de escribir ===== */
+        #area {
+            flex: 1;
             width: 100%;
-            padding: 12px; /* Más cómodo */
-            margin: 5px 0;
+            background: transparent;
+            color: var(--texto);
             border: none;
-            border-radius: 7px;
-            background-color: #2d2d2d;
-            color: white;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
+            outline: none;
+            resize: none;
+            padding: 18px 18px 8px;
+            font-family: inherit;
+            font-size: 18px;
+            line-height: 1.75;
+        }
+
+        #area::placeholder {
+            color: #475569;
+            font-style: italic;
+        }
+
+        .estado-hoja {
             display: flex;
-            align-items: center;
-            gap: 9px;
-            transition: background 0.15s ease;
-        }
-
-        .menu-opcion:hover {
-            background-color: #3d3d3d;
-        }
-
-        .menu-opcion:active {
-            background-color: #444;
-        }
-
-        .config-grupo {
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid #333;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        .config-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            justify-content: space-between;
+            padding: 6px 16px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
             font-size: 11px;
-            color: #ccc;
+            color: var(--tenue);
+            border-top: 1px solid #1e293b;
         }
 
-        input[type="color"] {
-            width: 32px;
+        /* ===== Barra de formato ===== */
+        .formato {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 10px;
+            background: var(--panel);
+            border-top: 1px solid var(--borde);
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .formato button {
+            min-width: 38px;
             height: 32px;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: #333;
-        }
-
-        input[type="number"] {
-            width: 48px;
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            border-radius: 5px;
-            text-align: center;
-            padding: 5px;
-        }
-
-        /* Área de texto: borde más sutil y texto discreto */
-        #main-textarea {
-            flex-grow: 1;
-            width: 100%;
-            background-color: #1e1e1e;
-            color: white;
-            border: 1px solid #2a2a2a; /* Borde más suave */
-            border-radius: 10px;
-            padding: 22px;
-            font-size: 18px;
-            resize: none;
-            outline: none;
-            line-height: 1.55;
-            margin: 12px 0;
-        }
-
-        /* Texto de ayuda más discreto */
-        #main-textarea::placeholder {
-            color: #444;
-            opacity: 0.7;
-        }
-
-        /* Barra inferior: reloj ajustado */
-        footer {
-            padding: 11px 15px;
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            border: 1px solid #2a2a2a;
-            text-align: center;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--texto);
             font-size: 14px;
-            color: #00ffcc;
+            cursor: pointer;
+            padding: 0 8px;
         }
 
-        #reloj {
-            color: #f1c40f;
-            margin-left: 12px;
-            font-family: monospace;
-            font-size: 1.1em; /* Tamaño equilibrado */
+        .formato button:active { background: #334155; }
+
+        .formato .separador {
+            width: 1px;
+            height: 20px;
+            background: var(--borde);
+            margin: 0 4px;
+        }
+
+        /* ===== Barra inferior ===== */
+        .acciones {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 6px;
+            padding: 10px;
+            background: var(--fondo);
+            border-top: 1px solid #1e293b;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .acciones button {
+            border: none;
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 12px;
+            padding: 9px 0;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .acciones button:active { background: #1e293b; }
+
+        .acciones .whatsapp {
+            background: var(--verde);
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* ===== Menú Más ===== */
+        .velo {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 50;
+        }
+
+        .velo.mostrar { display: block; }
+
+        .menu {
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: calc(12px + env(safe-area-inset-bottom));
+            background: var(--panel);
+            border: 1px solid var(--borde);
+            border-radius: 16px;
+            padding: 10px;
+            transform: translateY(120%);
+            transition: transform 0.25s ease;
+            z-index: 60;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .menu.mostrar { transform: translateY(0); }
+
+        .menu button {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: transparent;
+            color: var(--texto);
+            font-size: 15px;
+            padding: 13px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .menu button:active { background: #334155; }
+
+        .menu .peligro { color: #fca5a5; }
+
+        .menu .sep {
+            height: 1px;
+            background: var(--borde);
+            margin: 6px 4px;
+        }
+
+        .menu .fila-ajuste {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: var(--suave);
+        }
+
+        .muestras {
+            display: flex;
+            gap: 8px;
+        }
+
+        .muestra {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .muestra.activa { border-color: #fff; }
+
+        /* ===== Aviso ===== */
+        #aviso {
+            position: fixed;
+            left: 50%;
+            bottom: 90px;
+            transform: translateX(-50%) translateY(10px);
+            background: #0b1220;
+            border: 1px solid var(--acento);
+            color: var(--texto);
+            padding: 9px 16px;
+            border-radius: 999px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            font-size: 13px;
+            opacity: 0;
+            transition: all 0.25s ease;
+            pointer-events: none;
+            z-index: 80;
+            white-space: nowrap;
+        }
+
+        #aviso.mostrar {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 <body>
 
-    <!-- Botón de menú -->
-    <button class="boton-menu" id="menuBoton">⋮</button>
-
-    <!-- Menú desplegable con todas las opciones -->
-    <div class="menu-contenido" id="menuContenido">
-        <button class="menu-opcion" onclick="copyText()">📋 Copiar</button>
-        <button class="menu-opcion" onclick="pasteText()">📥 Pegar</button>
-        <button class="menu-opcion" onclick="clearText()">🗑️ Borrar todo</button>
-        <button class="menu-opcion" onclick="sendWhatsApp()">💬 Enviar a WhatsApp</button>
-        <button class="menu-opcion" onclick="saveToFile()">💾 Guardar</button>
-        <button class="menu-opcion" onclick="toggleFullScreen()">⛶ Pantalla completa</button>
-
-        <div class="config-grupo">
-            <div class="config-item">
-                <label>Fondo</label>
-                <input type="color" id="bgColor" value="#1e1e1e" oninput="updateStyle()">
-            </div>
-            <div class="config-item">
-                <label>Letra</label>
-                <input type="color" id="textColor" value="#ffffff" oninput="updateStyle()">
-            </div>
-            <div class="config-item">
-                <label>Tamaño</label>
-                <input type="number" id="fontSize" value="18" min="10" max="50" oninput="updateStyle()">
-            </div>
+    <header>
+        <div class="titulo">
+            <h1>Notas</h1>
+            <p>Mauricio · V8</p>
         </div>
+        <div class="derecha">
+            <div class="reloj">
+                <div id="hora">--:--</div>
+                <div id="fecha"></div>
+            </div>
+            <button class="icono-pequeno" id="btnPantalla" onclick="alternarPantallaCompleta()" aria-label="Pantalla completa">⛶</button>
+        </div>
+    </header>
+
+    <textarea id="area" placeholder="Escribe tu nota aquí..."></textarea>
+
+    <div class="estado-hoja">
+        <span id="contador">0 palabras</span>
+        <span id="estado">Sin guardar</span>
     </div>
 
-    <!-- Área de escritura -->
-    <textarea id="main-textarea" placeholder="..."></textarea>
+    <div class="formato">
+        <button onclick="formato('**')" aria-label="Negrita"><b>B</b></button>
+        <button onclick="formato('_')" aria-label="Cursiva"><i>I</i></button>
+        <button onclick="lista()" aria-label="Lista">•≡</button>
+        <div class="separador"></div>
+        <button onclick="cambiarTamano(-2)" aria-label="Letra más chica">A−</button>
+        <button onclick="cambiarTamano(2)" aria-label="Letra más grande">A+</button>
+    </div>
 
-    <!-- Barra inferior -->
-    <footer>
-        Mauricio v2.2 <span id="reloj">00:00 AM</span>
-    </footer>
+    <nav class="acciones">
+        <button onclick="copiar()">📋 Copiar</button>
+        <button onclick="pegar()">📥 Pegar</button>
+        <button class="whatsapp" onclick="enviarWhatsApp()">💬 WhatsApp</button>
+        <button onclick="abrirMenu()">⋯ Más</button>
+    </nav>
+
+    <!-- Menú Más -->
+    <div class="velo" id="velo" onclick="cerrarMenu()"></div>
+    <div class="menu" id="menu">
+        <button onclick="guardarArchivo(); cerrarMenu();">💾 Guardar como archivo</button>
+        <button class="peligro" onclick="pedirBorrar()">🗑️ Borrar todo (toca dos veces)</button>
+        <div class="sep"></div>
+        <div class="fila-ajuste">
+            Fondo
+            <div class="muestras" id="fondos"></div>
+        </div>
+        <div class="fila-ajuste">
+            Letra
+            <div class="muestras" id="letras"></div>
+        </div>
+        <div class="sep"></div>
+        <button onclick="cerrarMenu()">Cerrar</button>
+    </div>
+
+    <div id="aviso"></div>
 
     <script>
-        const textarea = document.getElementById('main-textarea');
-        const menuBoton = document.getElementById('menuBoton');
-        const menuContenido = document.getElementById('menuContenido');
+        const area = document.getElementById('area');
+        const menu = document.getElementById('menu');
+        const velo = document.getElementById('velo');
+        const aviso = document.getElementById('aviso');
 
-        // Mostrar/ocultar menú
-        menuBoton.addEventListener('click', () => {
-            menuContenido.classList.toggle('mostrar');
-        });
+        const fondos = ['#0f172a', '#1e293b', '#1c1917', '#052e16', '#2e1065'];
+        const letras = ['#e2e8f0', '#22d3ee', '#facc15', '#4ade80', '#f472b6'];
 
-        // Cerrar menú al tocar fuera
-        document.addEventListener('click', (e) => {
-            if (!menuBoton.contains(e.target) && !menuContenido.contains(e.target)) {
-                menuContenido.classList.remove('mostrar');
-            }
-        });
+        // ===== Reloj y fecha =====
+        const dias = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+        const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
-        // Reloj
         function actualizarReloj() {
             const ahora = new Date();
-            let horas = ahora.getHours();
-            const minutos = ahora.getMinutes().toString().padStart(2, '0');
-            const ampm = horas >= 12 ? 'PM' : 'AM';
-            horas = horas % 12 || 12;
-            document.getElementById('reloj').innerText = `${horas}:${minutos} ${ampm}`;
+            let h = ahora.getHours();
+            const m = ahora.getMinutes().toString().padStart(2, '0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            document.getElementById('hora').textContent = `${h}:${m} ${ampm}`;
+            document.getElementById('fecha').textContent =
+                `${dias[ahora.getDay()]} ${ahora.getDate()} ${meses[ahora.getMonth()]}`;
         }
-        setInterval(actualizarReloj, 1000);
         actualizarReloj();
+        setInterval(actualizarReloj, 1000);
 
-        // Funciones
-        function clearText() {
-            if (confirm("¿Borrar todo el texto?")) {
-                textarea.value = "";
+        // ===== Contador =====
+        function actualizarContador() {
+            const t = area.value.trim();
+            const n = t ? t.split(/\s+/).length : 0;
+            document.getElementById('contador').textContent = `${n} ${n === 1 ? 'palabra' : 'palabras'}`;
+        }
+
+        area.addEventListener('input', () => {
+            actualizarContador();
+            document.getElementById('estado').textContent = 'Sin guardar';
+        });
+
+        // ===== Aviso flotante =====
+        let tAviso;
+        function mostrarAviso(texto) {
+            aviso.textContent = texto;
+            aviso.classList.add('mostrar');
+            clearTimeout(tAviso);
+            tAviso = setTimeout(() => aviso.classList.remove('mostrar'), 1800);
+        }
+
+        // ===== Formato (texto plano con símbolos) =====
+        function formato(marca) {
+            const ini = area.selectionStart;
+            const fin = area.selectionEnd;
+            const sel = area.value.slice(ini, fin) || 'texto';
+            area.value = area.value.slice(0, ini) + marca + sel + marca + area.value.slice(fin);
+            area.focus();
+            area.selectionStart = ini + marca.length;
+            area.selectionEnd = ini + marca.length + sel.length;
+            actualizarContador();
+        }
+
+        function lista() {
+            const ini = area.selectionStart;
+            const inicioLinea = area.value.lastIndexOf('\n', ini - 1) + 1;
+            area.value = area.value.slice(0, inicioLinea) + '• ' + area.value.slice(inicioLinea);
+            area.focus();
+            area.selectionStart = area.selectionEnd = ini + 2;
+            actualizarContador();
+        }
+
+        function cambiarTamano(delta) {
+            const actual = parseInt(getComputedStyle(area).fontSize, 10);
+            const nuevo = Math.min(34, Math.max(12, actual + delta));
+            area.style.fontSize = nuevo + 'px';
+        }
+
+        // ===== Copiar, pegar, WhatsApp =====
+        async function copiar() {
+            if (!area.value.trim()) return mostrarAviso('No hay nada para copiar');
+            try {
+                await navigator.clipboard.writeText(area.value);
+                mostrarAviso('✅ Copiado');
+            } catch (e) {
+                area.select();
+                document.execCommand('copy');
+                mostrarAviso('✅ Copiado');
             }
         }
 
-        function updateStyle() {
-            textarea.style.backgroundColor = document.getElementById('bgColor').value;
-            textarea.style.color = document.getElementById('textColor').value;
-            textarea.style.fontSize = document.getElementById('fontSize').value + "px";
-        }
-
-        async function copyText() {
-            if (!textarea.value.trim()) return;
+        async function pegar() {
             try {
-                await navigator.clipboard.writeText(textarea.value);
-            } catch (err) {}
+                const texto = await navigator.clipboard.readText();
+                const ini = area.selectionStart;
+                const fin = area.selectionEnd;
+                area.value = area.value.slice(0, ini) + texto + area.value.slice(fin);
+                area.selectionStart = area.selectionEnd = ini + texto.length;
+                area.focus();
+                actualizarContador();
+                mostrarAviso('📥 Pegado');
+            } catch (e) {
+                mostrarAviso('Mantén presionado en la hoja y elige Pegar');
+            }
         }
 
-        async function pasteText() {
-            try {
-                const text = await navigator.clipboard.readText();
-                textarea.value += text;
-            } catch (err) {}
+        function enviarWhatsApp() {
+            if (!area.value.trim()) return mostrarAviso('Escribe algo primero');
+            window.open(`https://wa.me/?text=${encodeURIComponent(area.value)}`, '_blank');
         }
 
-        function sendWhatsApp() {
-            const text = encodeURIComponent(textarea.value);
-            if (!text) return;
-            window.open(`https://wa.me/?text=${text}`, '_blank');
-        }
-
-        // Guardado corregido
-        function saveToFile() {
-            if (!textarea.value.trim()) return;
-            const blob = new Blob([textarea.value], { type: "text/plain;charset=utf-8" });
+        // ===== Guardar como archivo =====
+        function guardarArchivo() {
+            if (!area.value.trim()) return mostrarAviso('Escribe algo primero');
+            const blob = new Blob([area.value], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "mi_nota.txt";
-            a.click();
-            URL.revokeObjectURL(url);
+            const enlace = document.createElement('a');
+            enlace.href = url;
+            enlace.download = `nota_${Date.now()}.txt`;
+            document.body.appendChild(enlace);
+            enlace.click();
+            enlace.remove();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+            document.getElementById('estado').textContent = 'Guardado como archivo';
+            mostrarAviso('💾 Archivo descargado');
         }
 
-        function toggleFullScreen() {
+        // ===== Borrar con doble toque =====
+        let listoParaBorrar = false;
+        let tBorrar;
+        function pedirBorrar() {
+            if (!area.value.trim()) return mostrarAviso('La hoja ya está vacía');
+            if (!listoParaBorrar) {
+                listoParaBorrar = true;
+                mostrarAviso('Toca Borrar otra vez para confirmar');
+                tBorrar = setTimeout(() => listoParaBorrar = false, 3000);
+                return;
+            }
+            clearTimeout(tBorrar);
+            listoParaBorrar = false;
+            area.value = '';
+            actualizarContador();
+            cerrarMenu();
+            mostrarAviso('🗑️ Hoja borrada');
+        }
+
+        // ===== Pantalla completa (un toque para entrar y otro para salir) =====
+        function alternarPantallaCompleta() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(() => {});
+                document.documentElement.requestFullscreen().catch(() => {
+                    mostrarAviso('Este navegador no permite pantalla completa');
+                });
             } else {
                 document.exitFullscreen().catch(() => {});
             }
         }
 
-        // Cerrar menú al escribir en móvil
-        textarea.addEventListener('focus', () => {
-            if (window.innerWidth < 768) {
-                menuContenido.classList.remove('mostrar');
-            }
+        document.addEventListener('fullscreenchange', () => {
+            const btn = document.getElementById('btnPantalla');
+            btn.textContent = document.fullscreenElement ? '✕' : '⛶';
+            btn.setAttribute('aria-label', document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa');
         });
+
+        // ===== Menú Más y colores =====
+        function abrirMenu() {
+            menu.classList.add('mostrar');
+            velo.classList.add('mostrar');
+        }
+
+        function cerrarMenu() {
+            menu.classList.remove('mostrar');
+            velo.classList.remove('mostrar');
+        }
+
+        function crearMuestras(contenedor, colores, tipo) {
+            colores.forEach((color, i) => {
+                const b = document.createElement('button');
+                b.className = 'muestra';
+                b.style.background = color;
+                b.setAttribute('aria-label', 'Cambiar color');
+                b.onclick = () => {
+                    if (tipo === 'fondo') {
+                        document.body.style.background = color;
+                        area.style.background = 'transparent';
+                    } else {
+                        area.style.color = color;
+                    }
+                    [...contenedor.children].forEach(x => x.classList.remove('activa'));
+                    b.classList.add('activa');
+                };
+                if (i === 0) b.classList.add('activa');
+                contenedor.appendChild(b);
+            });
+        }
+
+        crearMuestras(document.getElementById('fondos'), fondos, 'fondo');
+        crearMuestras(document.getElementById('letras'), letras, 'letra');
+        actualizarContador();
     </script>
 
 </body>
